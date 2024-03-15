@@ -44,14 +44,51 @@ public class SpellingBee {
     //  Store them all in the ArrayList words. Do this by calling ANOTHER method
     //  that will find the substrings recursively.
     public void generate() {
-        // YOUR CODE HERE — Call your recursive method!
+        makeWords("", letters);
     }
 
+    public void makeWords(String start, String remaining){
+        if (!start.isEmpty()) {
+            words.add(start);
+        }
+        // Recursive call with new prefix and remaining letters
+        for (int i = 0; i < remaining.length(); i++) {
+            makeWords(start + remaining.charAt(i), remaining.substring(0, i) + remaining.substring(i + 1));
+        }
+
+    }
     // TODO: Apply mergesort to sort all words. Do this by calling ANOTHER method
     //  that will find the substrings recursively.
     public void sort() {
-        // YOUR CODE HERE
+        quickSort(words, 0, words.size() - 1);
     }
+    // Quicksort algorithm
+    private void quickSort(ArrayList<String> words, int low, int high) {
+        if (low < high) {
+            String pivot = words.get(high); // Pivot for dividing and organizing
+            int i = low - 1;
+            for (int j = low; j < high; j++) {
+                // If current element is smaller than pivot
+                if (words.get(j).compareTo(pivot) < 0) {
+                    i++;
+                    swap(words, i, j); // Swap words[i] and words[j]
+                }
+            }
+            swap(words, i + 1, high); // Swap words[i+1] and pivot
+            int pivotIndex = i + 1;
+
+            // Recursively sort elements before and after split
+            quickSort(words, low, pivotIndex - 1);
+            quickSort(words, pivotIndex + 1, high);
+        }
+    }
+
+    private void swap(ArrayList<String> words, int i, int j) {
+        String temp = words.get(i);
+        words.set(i, words.get(j));
+        words.set(j, temp);
+    }
+
 
     // Removes duplicates from the sorted list.
     public void removeDuplicates() {
@@ -68,7 +105,33 @@ public class SpellingBee {
     // TODO: For each word in words, use binary search to see if it is in the dictionary.
     //  If it is not in the dictionary, remove it from words.
     public void checkWords() {
-        // YOUR CODE HERE
+        ArrayList<String> validWords = new ArrayList<>();
+        for (String word : words) {
+            if (binarySearch(word) >= 0) {
+                validWords.add(word);
+            }
+        }
+        words = validWords;
+    }
+
+    private int binarySearch(String target) {
+        int low = 0;
+        int high = DICTIONARY_SIZE - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+            int comparison = SpellingBee.DICTIONARY[mid].compareTo(target);
+
+            if (comparison == 0) {
+                return mid; // Target word is found in the dictionary
+            } else if (comparison < 0) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        return -1; // Target word is not found in the dictionary
     }
 
     // Prints all valid words to wordList.txt
